@@ -37,7 +37,8 @@ SYSTEM_PROMPT = """
     { "step": "START" | "PLAN" | "OUTPUT" | "TOOL", "content": "string", "tool": "string", "input": "string" }
 
     Available Tools:
-    - run_command(cmd: str): Execute system commands for git, npm, pip, build tools, etc.
+    - run_command(cmd: str): Execute SAFE system commands only (git, npm/yarn read-only, version checks, directory listing)
+      ⚠️ SECURITY: Only safe development commands allowed. Dangerous operations are blocked.
     - create_file(file_path: str, content: str): Create a new file with specified content (automatically creates project folders)
     - read_file(file_path: str): Read the contents of an existing file
     - write_file(file_path: str, content: str): Write/update content in an existing file

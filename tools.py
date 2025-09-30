@@ -9,9 +9,99 @@ from pathlib import Path
 
 
 def run_command(cmd: str):
-    """Execute system commands for build tools, git, package managers, etc."""
-    result = os.system(cmd)
-    return f"Command executed with exit code: {result}"
+    """Execute safe system commands for development tasks only."""
+    
+    # Define allowed command prefixes (safe commands only)
+    SAFE_COMMANDS = [
+        # Version control (all git commands that are safe)
+        'git', 
+        
+        # Package managers (read-only or safe operations)
+        'npm list', 'npm --version', 'npm info', 'npm outdated', 'npm audit', 'npm run',
+        'pip list', 'pip show', 'pip --version', 'pip check',
+        'yarn --version', 'yarn list', 'yarn info', 'yarn run',
+        
+        # Version checks
+        'node --version', 'python --version', 'python -V', 'java -version',
+        
+        # Directory operations (safe, read-only)
+        'ls', 'dir', 'pwd', 'cd',
+        
+        # File operations (safe, read-only)
+        'cat', 'type', 'head', 'tail', 'wc', 'find', 'grep',
+        
+        # Development tools
+        'code', 'jupyter --version',
+        
+        # Safe system info
+        'whoami', 'date', 'echo', 'which', 'where',
+    ]
+    
+    # Define dangerous commands that should never be allowed
+    DANGEROUS_COMMANDS = [
+        # System administration
+        'sudo', 'su', 'chmod 777', 'chown',
+        
+        # File system operations
+        'rm -rf', 'rmdir', 'del /f', 'del /s', 'format', 'fdisk',
+        'mv /', 'cp -r /', 'xcopy',
+        
+        # Network operations
+        'wget', 'curl -X POST', 'curl -X PUT', 'curl -X DELETE',
+        'nc', 'netcat', 'ssh', 'scp', 'rsync',
+        
+        # Process management
+        'kill -9', 'killall', 'pkill', 'taskkill /f',
+        
+        # System modification
+        'shutdown', 'reboot', 'halt', 'poweroff',
+        'mount', 'umount', 'fsck',
+        
+        # Registry operations (Windows)
+        'reg delete', 'reg add', 'regedit',
+        
+        # Package installation (can be dangerous)
+        'apt install', 'apt remove', 'yum install', 'brew install',
+        'pip install', 'npm install -g', 'yarn global add',
+        
+        # Scripting that could be dangerous
+        'eval', 'exec', 'source', 'bash -c', 'sh -c', 'cmd /c',
+        
+        # Database operations
+        'mysql', 'psql', 'mongo', 'redis-cli',
+    ]
+    
+    # Normalize command for checking
+    cmd_lower = cmd.lower().strip()
+    
+    # Check for command chaining/injection attempts
+    dangerous_patterns = ['&&', '||', ';', '|', '>', '>>', '<', '`', '$', '$(']
+    for pattern in dangerous_patterns:
+        if pattern in cmd:
+            return f"❌ Command blocked for security: '{cmd}'. Command chaining/injection not allowed."
+    
+    # Check for dangerous commands first
+    for dangerous in DANGEROUS_COMMANDS:
+        if dangerous in cmd_lower:
+            return f"❌ Command blocked for security: '{cmd}'. Dangerous operation detected: '{dangerous}'"
+    
+    # Check if command starts with a safe command
+    is_safe = False
+    for safe_cmd in SAFE_COMMANDS:
+        if cmd_lower.startswith(safe_cmd.lower()):
+            is_safe = True
+            break
+    
+    if not is_safe:
+        return f"❌ Command blocked for security: '{cmd}'. Only safe development commands are allowed.\n" \
+               f"✅ Allowed commands include: git, npm/yarn (read-only), version checks, directory listing, etc."
+    
+    try:
+        # Execute the safe command
+        result = os.system(cmd)
+        return f"✅ Command executed safely: '{cmd}' (exit code: {result})"
+    except Exception as e:
+        return f"❌ Error executing command '{cmd}': {str(e)}"
 
 
 def detect_project_name(file_path: str, content: str):
