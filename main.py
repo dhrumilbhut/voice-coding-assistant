@@ -89,20 +89,47 @@ r = sr.Recognizer() # Speech to Text
 
 # Try to initialize microphone, but don't fail if PyAudio is not available
 try:
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source)
-        r.pause_threshold = 2
-        mic_available = True
-except AttributeError:
-    print("PyAudio not found. Running in text-only mode.")
+    # Test if PyAudio is available by trying to create a microphone
+    test_mic = sr.Microphone()
+    mic_available = True
+    print("🎤 Microphone available. You can use voice input.")
+except (AttributeError, OSError) as e:
+    print("🔇 PyAudio not found or microphone not available. Running in text-only mode.")
     mic_available = False
+
+def get_voice_input():
+    """Get voice input using speech recognition"""
+    try:
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source, duration=1)
+            print("🎤 Listening... (speak now)")
+            audio = r.listen(source, timeout=10, phrase_time_limit=10)
+            print("🔄 Processing speech...")
+            text = r.recognize_google(audio)
+            print(f"📝 You said: {text}")
+            return text
+    except sr.WaitTimeoutError:
+        print("⏰ No speech detected. Switching to text input.")
+        return input("Type your query: ")
+    except sr.UnknownValueError:
+        print("❓ Could not understand speech. Please try again or type your query.")
+        return input("Type your query: ")
+    except sr.RequestError as e:
+        print(f"❌ Speech recognition error: {e}")
+        return input("Type your query: ")
+    except Exception as e:
+        print(f"❌ Microphone error: {e}")
+        return input("Type your query: ")
 
 while True:
     if mic_available:
-        print("Speak Something...")
-        audio = r.listen(source)
-        print("Processing Audio... (STT)")
-        user_query = r.recognize_google(audio)
+        print("\n" + "="*50)
+        print("🎙️ Voice mode: Speak your request or press Ctrl+C for text mode")
+        try:
+            user_query = get_voice_input()
+        except KeyboardInterrupt:
+            print("\n⌨️ Switching to text input...")
+            user_query = input("Type your query: ")
     else:
         user_query = input("Type your query: ")
     
