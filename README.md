@@ -191,6 +191,6 @@ pyaudio>=0.2.11  # Optional, for microphone input
 
 **Made with ❤️ by Dhrumil Bhut**
 
-[⭐ Star this repo](https://github.com/your-username/voice-coding-assistant) if you find it helpful!
+[⭐ Star this repo](https://github.com/dhrumilbhut/voice-coding-assistant) if you find it helpful!
 
 </div>
