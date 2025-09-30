@@ -99,10 +99,9 @@ except AttributeError:
 while True:
     if mic_available:
         print("Speak Something...")
-        # audio = r.listen(source)
+        audio = r.listen(source)
         print("Processing Audio... (STT)")
-        # user_query = r.recognize_google(audio)
-        user_query = input("Type your query: ")
+        user_query = r.recognize_google(audio)
     else:
         user_query = input("Type your query: ")
     
