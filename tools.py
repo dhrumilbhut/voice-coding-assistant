@@ -4,6 +4,8 @@ Contains all the available tools that the agent can use to help with coding task
 """
 
 import os
+import re
+from pathlib import Path
 
 
 def run_command(cmd: str):
@@ -12,11 +14,78 @@ def run_command(cmd: str):
     return f"Command executed with exit code: {result}"
 
 
+def detect_project_name(file_path: str, content: str):
+    """Detect project name from file path or content."""
+    # Check if file_path already contains a folder
+    if '/' in file_path or '\\' in file_path:
+        return None  # Don't modify if already in a folder
+    
+    # Common project indicators in filenames
+    project_patterns = {
+        'todo': ['todo', 'task', 'checklist'],
+        'calculator': ['calc', 'calculator', 'math'],
+        'weather': ['weather', 'forecast', 'climate'],
+        'blog': ['blog', 'post', 'article'],
+        'portfolio': ['portfolio', 'resume', 'cv'],
+        'ecommerce': ['shop', 'store', 'cart', 'ecommerce'],
+        'dashboard': ['dashboard', 'admin', 'panel'],
+        'chat': ['chat', 'message', 'messenger'],
+        'game': ['game', 'puzzle', 'play'],
+        'landing': ['landing', 'home', 'index']
+    }
+    
+    # Check filename
+    filename_lower = file_path.lower()
+    for project, keywords in project_patterns.items():
+        if any(keyword in filename_lower for keyword in keywords):
+            return f"{project}_app"
+    
+    # Check content for project indicators
+    content_lower = content.lower()
+    for project, keywords in project_patterns.items():
+        if any(keyword in content_lower for keyword in keywords):
+            return f"{project}_app"
+    
+    # Check for common HTML patterns
+    if file_path.endswith('.html'):
+        title_match = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE)
+        if title_match:
+            title = title_match.group(1).strip()
+            # Clean title for folder name
+            clean_title = re.sub(r'[^\w\s-]', '', title).strip()
+            clean_title = re.sub(r'[-\s]+', '_', clean_title).lower()
+            if clean_title and len(clean_title) > 2:
+                return clean_title
+    
+    # Default project name based on file types
+    if file_path.endswith(('.html', '.css', '.js')):
+        return 'web_app'
+    elif file_path.endswith('.py'):
+        return 'python_project'
+    
+    return None
+
+
 def create_file(file_path: str, content: str):
-    """Create a new file with the specified content."""
+    """Create a new file with the specified content in appropriate project folder."""
     try:
+        # Detect if this should be in a project folder
+        project_name = detect_project_name(file_path, content)
+        
+        if project_name:
+            # Create project folder if it doesn't exist
+            project_path = Path(project_name)
+            project_path.mkdir(exist_ok=True)
+            
+            # Update file path to be inside project folder
+            file_path = project_path / file_path
+            
+            print(f"📁 Creating project folder: {project_name}")
+        
+        # Create the file
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
+        
         return f"File '{file_path}' created successfully."
     except Exception as e:
         return f"Error creating file: {str(e)}"
@@ -25,6 +94,16 @@ def create_file(file_path: str, content: str):
 def read_file(file_path: str):
     """Read the contents of a file."""
     try:
+        # Check if file exists in current directory first
+        if not os.path.exists(file_path):
+            # Look for the file in project folders
+            for item in os.listdir('.'):
+                if os.path.isdir(item):
+                    potential_path = Path(item) / file_path
+                    if potential_path.exists():
+                        file_path = potential_path
+                        break
+        
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         return f"File contents:\n{content}"
@@ -35,6 +114,16 @@ def read_file(file_path: str):
 def write_file(file_path: str, content: str):
     """Write content to an existing file (overwrites existing content)."""
     try:
+        # Check if file exists in current directory or project folders
+        if not os.path.exists(file_path):
+            # Look for the file in project folders
+            for item in os.listdir('.'):
+                if os.path.isdir(item):
+                    potential_path = Path(item) / file_path
+                    if potential_path.exists():
+                        file_path = potential_path
+                        break
+        
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
         return f"File '{file_path}' updated successfully."
