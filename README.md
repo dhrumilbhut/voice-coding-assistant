@@ -8,6 +8,7 @@
 
 A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT models to help developers create, analyze, and manage code through natural speech interaction. Simply speak your requirements, and watch as complete projects come to life!
 
+
 ## ✨ Features
 
 - 🎙️ **Voice-to-Code**: Convert speech directly into functional code
@@ -18,6 +19,11 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 - 🌐 **Web Development Ready**: Instant HTML, CSS, JavaScript project scaffolding
 - 🐍 **Python Support**: Create and analyze Python projects
 - 📝 **Structured Outputs**: Reliable JSON-based AI responses
+- 🛡️ **Rate Limiting**: Prevents abuse and controls API costs by limiting requests per user/IP
+- 🔑 **User-Provided OpenAI API Key**: Each user must supply their own OpenAI API key for every request, ensuring privacy and cost control
+- 🌐 **MCP Server Mode**: Run as a FastAPI server with a `/mcp/ask` endpoint for programmatic access
+- 📊 **Multi-Tenant Ready**: Supports multiple users with isolated API usage and billing
+- 🧩 **Easy Integration**: Ready for use with external tools, scripts, or future VS Code extension
 
 ## 🚀 Quick Start
 
@@ -26,6 +32,7 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 - Python 3.8+
 - OpenAI API key
 - Microphone (optional - works in text mode too)
+
 
 ### Installation
 
@@ -40,18 +47,39 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables**
+3. **Set up environment variables (CLI only)**
    ```bash
    cp .env.example .env
-   # Edit .env and add your OpenAI API key
+   # Edit .env and add your OpenAI API key (for CLI mode only)
    ```
 
-4. **Run the assistant**
+4. **Run the assistant (CLI mode)**
    ```bash
    python main.py
    ```
 
+5. **Run as MCP Server (API mode)**
+   ```bash
+   uvicorn server:app --reload
+   ```
+
+
 ## 🎯 Usage Examples
+### Use the MCP API Endpoint
+
+Send a POST request to `/mcp/ask` with your OpenAI API key:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/mcp/ask" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "user_input": "Create a Python function to add two numbers",
+      "api_key": "sk-...your-openai-key...",
+      "context": {}
+   }'
+```
+
+**Note:** Each request must include a valid OpenAI API key in the `api_key` field. Requests are rate-limited (default: 10/minute per IP).
 
 ### Create a Todo App
 ```
@@ -74,19 +102,22 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 ```
 **Result**: Functional calculator in `calculator_app/` folder
 
+
 ## 📂 Project Structure
 
 ```
 voice-coding-assistant/
-├── main.py              # Main application entry point
+├── main.py              # Main application entry point (CLI)
+├── assistant_core.py    # Core assistant logic (shared by CLI and API)
+├── server.py            # FastAPI MCP server (API mode)
 ├── tools.py             # Tool functions (file ops, analysis)
 ├── requirements.txt     # Python dependencies
-├── .env.example        # Environment variables template
-├── README.md           # This file
-└── generated_projects/ # Auto-created project folders
-    ├── todo_app/
-    ├── calculator_app/
-    └── web_app/
+├── .env.example         # Environment variables template
+├── README.md            # This file
+└── generated_projects/  # Auto-created project folders
+   ├── todo_app/
+   ├── calculator_app/
+   └── web_app/
 ```
 
 ## 🛠️ Available Tools
@@ -116,14 +147,17 @@ The assistant automatically detects project types and creates organized folders:
 
 ## 🔧 Configuration
 
+
 ### Environment Variables
 
-Create a `.env` file with:
+For CLI mode, create a `.env` file with:
 
 ```env
-# Required
+# Required for CLI
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+For API mode, each request must include an `api_key` field with a valid OpenAI API key. The `.env` file is not required for API usage.
 
 ### Supported Models
 
