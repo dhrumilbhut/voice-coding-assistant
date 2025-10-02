@@ -101,7 +101,7 @@ def get_voice_input():
     """Get voice input using speech recognition"""
     try:
         with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=1)
+            r.adjust_for_ambient_noise(source, duration=2)
             print("🎤 Listening... (speak now)")
             audio = r.listen(source, timeout=10, phrase_time_limit=10)
             print("🔄 Processing speech...")
