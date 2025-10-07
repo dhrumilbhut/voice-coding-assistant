@@ -1,3 +1,4 @@
+import asyncio
 from dotenv import load_dotenv
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -6,6 +7,8 @@ import json
 import os
 from tools import AVAILABLE_TOOLS
 
+from openai import AsyncOpenAI
+from openai.helpers import LocalAudioPlayer
 
 import speech_recognition as sr 
 from assistant_core import run_assistant, SYSTEM_PROMPT
@@ -15,6 +18,20 @@ load_dotenv()
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 ) 
+async_client = AsyncOpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
+
+async def tts(speech: str):
+    async with async_client.audio.speech.with_streaming_response.create(
+        model="gpt-4o-mini-tts",
+        voice="coral",
+        instructions="Always speak in a clear and engaging manner.",
+        input=speech,
+        response_format="pcm"
+    ) as response:
+        await LocalAudioPlayer().play(response)
+
 
 available_tools = AVAILABLE_TOOLS
 
@@ -173,6 +190,10 @@ while True:
             continue
 
         if parsed_result.get("step") == "OUTPUT":
-            print("🤖", parsed_result.get("content", ""))
-            # asyncio.run(tts(speech=parsed_result.get("content", "")))
+            final_output = parsed_result.get("content", "")
+            print("🤖", final_output)
+
+            # TTS
+            asyncio.run(tts(final_output))
+
             break

@@ -8,22 +8,11 @@
 
 A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT models to help developers create, analyze, and manage code through natural speech interaction. Simply speak your requirements, and watch as complete projects come to life!
 
-## 🚀 **Latest Updates (October 2025)**
-
-### ⭐ **Major Features Added**
-- **🎯 User-Selectable AI Models**: Choose from `gpt-4o-mini`, `gpt-4o`, `gpt-3.5-turbo` based on your cost/performance needs
-- **🔌 True MCP Compliance**: Full JSON-RPC 2.0 implementation with proper handshake, tool discovery, and error handling
-- **🏗️ Hybrid Architecture**: Run both Simple REST API (port 8000) and MCP Server (port 8001) simultaneously
-- **� Custom Project Locations**: Specify where to create projects - "Create todo app in my_projects folder"
-- **🗂️ Organized Project Structure**: All AI projects organized in `ai_projects/` with smart categorization
-- **�🛡️ Production Security**: Rate limiting, API key validation, command injection prevention
-- **📊 Multi-Tenant Ready**: Isolated user sessions with individual API key management
-- **🧪 Comprehensive Testing**: Complete test suite for both API types with real-world examples
-
 
 ## ✨ Features
 
 - 🎙️ **Voice-to-Code**: Convert speech directly into functional code
+- 🔊 **Text-to-Speech**: AI responses spoken aloud with OpenAI's streaming TTS
 - 🤖 **AI-Powered**: Integrates with OpenAI GPT-4o-mini for intelligent responses
 - 🎯 **Model Selection**: Users can choose from multiple OpenAI models (gpt-4o-mini, gpt-4o, gpt-3.5-turbo) based on their cost/performance needs
 - 🏗️ **Hybrid Architecture**: Both Simple REST API and True MCP Protocol support
@@ -103,6 +92,9 @@ Run `python main.py` for interactive voice/text coding assistance.
 
 Send a POST request to `/api/ask`:
 
+<details>
+<summary>📋 Click to view REST API curl example</summary>
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/ask" \
    -H "Content-Type: application/json" \
@@ -114,13 +106,19 @@ curl -X POST "http://127.0.0.1:8000/api/ask" \
    }'
 ```
 
+</details>
+
+
+
 **🎯 Model Selection**: Users can specify which OpenAI model to use by including a `"model"` parameter. Defaults to `"gpt-4o-mini"` if not specified.
 
 ### True MCP (Model Context Protocol) Server
 
 The project includes a **real MCP-compliant server** following the JSON-RPC 2.0 protocol:
 
-#### 1. Initialize the MCP connection:
+<details>
+<summary>🔌 1. Initialize the MCP connection</summary>
+
 ```bash
 curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    -H "Content-Type: application/json" \
@@ -136,7 +134,11 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    }'
 ```
 
-#### 2. List available tools:
+</details>
+
+<details>
+<summary>🛠️ 2. List available tools</summary>
+
 ```bash
 curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    -H "Content-Type: application/json" \
@@ -147,7 +149,11 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    }'
 ```
 
-#### 3. Call a tool:
+</details>
+
+<details>
+<summary>⚡ 3. Call a tool</summary>
+
 ```bash
 curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    -H "Content-Type: application/json" \
@@ -166,7 +172,11 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    }'
 ```
 
-#### 4. Use the AI assistant:
+</details>
+
+<details>
+<summary>🤖 4. Use the AI assistant</summary>
+
 ```bash
 curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
    -H "Content-Type: application/json" \
@@ -182,6 +192,8 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
       }
    }'
 ```
+
+</details>
 
 **🎯 Model Selection**: Both APIs support user-selectable models via the `"model"` parameter. This allows API key owners to control cost and performance trade-offs.
 
