@@ -286,6 +286,7 @@ async def mcp_rpc_endpoint(request: Request):
             try:
                 user_input = params.get("user_input", "")
                 api_key = params.get("api_key", "")
+                model = params.get("model", "gpt-4o-mini")  # Default model
                 context = params.get("context", {})
                 
                 if not user_input:
@@ -297,7 +298,7 @@ async def mcp_rpc_endpoint(request: Request):
                 if not (api_key.startswith("sk-") and len(api_key) >= 40):
                     return create_error_response(request_id, -32602, "Invalid API key format").dict()
                 
-                response, _ = run_assistant(user_input, context=context, api_key=api_key)
+                response, _ = run_assistant(user_input, context=context, api_key=api_key, model=model)
                 
                 return create_success_response(request_id, {
                     "response": response,

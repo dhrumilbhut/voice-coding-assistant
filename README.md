@@ -8,11 +8,23 @@
 
 A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT models to help developers create, analyze, and manage code through natural speech interaction. Simply speak your requirements, and watch as complete projects come to life!
 
+## 🚀 **Latest Updates (October 2025)**
+
+### ⭐ **Major Features Added**
+- **🎯 User-Selectable AI Models**: Choose from `gpt-4o-mini`, `gpt-4o`, `gpt-3.5-turbo` based on your cost/performance needs
+- **🔌 True MCP Compliance**: Full JSON-RPC 2.0 implementation with proper handshake, tool discovery, and error handling
+- **🏗️ Hybrid Architecture**: Run both Simple REST API (port 8000) and MCP Server (port 8001) simultaneously
+- **🛡️ Production Security**: Rate limiting, API key validation, command injection prevention
+- **📊 Multi-Tenant Ready**: Isolated user sessions with individual API key management
+- **🧪 Comprehensive Testing**: Complete test suite for both API types with real-world examples
+
 
 ## ✨ Features
 
 - 🎙️ **Voice-to-Code**: Convert speech directly into functional code
 - 🤖 **AI-Powered**: Integrates with OpenAI GPT-4o-mini for intelligent responses
+- 🎯 **Model Selection**: Users can choose from multiple OpenAI models (gpt-4o-mini, gpt-4o, gpt-3.5-turbo) based on their cost/performance needs
+- 🏗️ **Hybrid Architecture**: Both Simple REST API and True MCP Protocol support
 - 📁 **Smart Project Organization**: Automatically creates organized project folders
 - 🛠️ **Multi-Tool Support**: File creation, code analysis, command execution
 - 🧠 **Chain-of-Thought Reasoning**: Multi-step planning for complex tasks
@@ -21,7 +33,7 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 - 📝 **Structured Outputs**: Reliable JSON-based AI responses
 - 🛡️ **Rate Limiting**: Prevents abuse and controls API costs by limiting requests per user/IP
 - 🔑 **User-Provided OpenAI API Key**: Each user must supply their own OpenAI API key for every request, ensuring privacy and cost control
-- 🌐 **MCP Server Mode**: Run as a FastAPI server with a `/mcp/ask` endpoint for programmatic access
+- 🔌 **True MCP Server**: Full JSON-RPC 2.0 compliant Model Context Protocol implementation
 - 📊 **Multi-Tenant Ready**: Supports multiple users with isolated API usage and billing
 - 🧩 **Easy Integration**: Ready for use with external tools, scripts, or future VS Code extension
 
@@ -58,19 +70,24 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
    python main.py
    ```
 
-5. **Run as Simple API Server**
+5. **🔥 Run Hybrid Mode (Recommended)**
    ```bash
-   uvicorn server:app --reload
+   python hybrid_server.py
    ```
+   *Starts both Simple REST API (8000) and MCP Server (8001)*
 
-6. **Run as True MCP Server**
+6. **Or run individually:**
    ```bash
+   # Simple REST API only
+   uvicorn server:app --reload
+   
+   # MCP Server only  
    python mcp_server.py
    ```
 
-7. **Run Hybrid Mode (Both APIs)**
+7. **🧪 Test the APIs**
    ```bash
-   python hybrid_server.py
+   python test_apis.py
    ```
 
 
@@ -89,9 +106,12 @@ curl -X POST "http://127.0.0.1:8000/api/ask" \
    -d '{
       "user_input": "Create a Python function to add two numbers",
       "api_key": "sk-...your-openai-key...",
+      "model": "gpt-4o-mini",
       "context": {}
    }'
 ```
+
+**🎯 Model Selection**: Users can specify which OpenAI model to use by including a `"model"` parameter. Defaults to `"gpt-4o-mini"` if not specified.
 
 ### True MCP (Model Context Protocol) Server
 
@@ -154,10 +174,13 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
       "params": {
          "user_input": "Create a todo app",
          "api_key": "sk-...your-key...",
+         "model": "gpt-4o-mini",
          "context": {}
       }
    }'
 ```
+
+**🎯 Model Selection**: Both APIs support user-selectable models via the `"model"` parameter. This allows API key owners to control cost and performance trade-offs.
 
 **Note:** Each request must include a valid OpenAI API key. The simple API is rate-limited (10/minute), while MCP allows 30/minute for more complex workflows.
 
@@ -228,6 +251,28 @@ The assistant automatically detects project types and creates organized folders:
 | 🌐 Web Apps | General HTML/CSS/JS | `web_app/` |
 | 🐍 Python | Python files | `python_project/` |
 
+## 🏗️ **Hybrid Architecture Overview**
+
+```
+🎤 Voice Coding Assistant - Hybrid Architecture
+├── 📡 Simple REST API (Port 8000)     ├── 🔌 MCP Server (Port 8001)
+│   ├── POST /api/ask                  │   ├── JSON-RPC 2.0 Protocol
+│   ├── Rate Limit: 10/min             │   ├── Rate Limit: 30/min
+│   └── Perfect for MVPs               │   └── Standards Compliant
+│                                      │
+└── 🧠 Shared Core Logic (assistant_core.py)
+    ├── OpenAI GPT Integration
+    ├── Chain-of-Thought Reasoning
+    ├── Tool Execution Engine
+    └── Project Organization
+```
+
+### 🎯 **Why Hybrid Approach?**
+- **🚀 Speed**: Simple REST for quick integrations and testing
+- **📏 Standards**: MCP compliance for future-proof AI ecosystem integration
+- **🔄 Flexibility**: Developers choose what fits their workflow
+- **💡 Innovation**: Best of both worlds without compromise
+
 ## 🔧 Configuration
 
 ### API Comparison
@@ -256,9 +301,17 @@ For API mode, each request must include an `api_key` field with a valid OpenAI A
 
 ### Supported Models
 
-- `gpt-4o-mini` (default) - Fast and cost-effective
-- `gpt-4o` - More capable for complex tasks
-- `gpt-3.5-turbo` - Budget-friendly option
+- `gpt-4o-mini` (default) - Fast and cost-effective, optimal for most coding tasks
+- `gpt-4o` - More capable for complex architectural decisions and advanced coding
+- `gpt-3.5-turbo` - Budget-friendly option for simple tasks
+- `gpt-4` - Legacy model, more expensive but highly capable
+
+**🎯 Model Selection**: Users can choose models based on their specific needs:
+- **Cost-conscious**: Use `gpt-4o-mini` for routine coding tasks
+- **Performance-critical**: Use `gpt-4o` for complex problem-solving
+- **Budget-limited**: Use `gpt-3.5-turbo` for simple file generation
+
+Since users provide their own API keys, they control the cost/performance trade-off!
 
 ## 🧠 How It Works
 
@@ -286,33 +339,6 @@ The assistant uses a structured reasoning approach:
 
 🤖 Output: "Created a complete coffee shop landing page!"
 ```
-
-## 📋 Requirements
-
-```
-openai>=1.0.0
-python-dotenv>=1.0.0
-SpeechRecognition>=3.10.0
-pydantic>=2.0.0
-pyaudio>=0.2.11  # Optional, for microphone input
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-
-## 🙏 Acknowledgments
-
-- OpenAI for providing powerful language models
-- SpeechRecognition library for voice input capabilities
-- The Python community for excellent tooling and libraries
-
-
 
 ---
 

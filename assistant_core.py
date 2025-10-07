@@ -75,11 +75,18 @@ class MyOutputFormat(BaseModel):
     input: Optional[str] = Field(None, description="The input params for the tool")
 
 
-def run_assistant(user_query, context=None, message_history=None, api_key=None):
+def run_assistant(user_query, context=None, message_history=None, api_key=None, model="gpt-4o-mini"):
     """
     Run the assistant logic for a given user query and context.
     Returns the final output (string) and optionally the full message history.
     Uses the provided api_key for OpenAI authentication.
+    
+    Args:
+        user_query (str): The user's input query
+        context (dict): Optional context for the conversation
+        message_history (list): Optional conversation history
+        api_key (str): OpenAI API key
+        model (str): OpenAI model to use (default: gpt-4o-mini)
     """
     from openai import OpenAI
     if api_key is None:
@@ -96,7 +103,7 @@ def run_assistant(user_query, context=None, message_history=None, api_key=None):
     while True:
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=model,  # Use the provided model parameter
                 messages=message_history,
                 response_format={
                     "type": "json_schema", 

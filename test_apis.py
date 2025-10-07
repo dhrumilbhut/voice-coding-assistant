@@ -15,24 +15,29 @@ MCP_INFO_URL = "http://localhost:8001/mcp/info"
 API_KEY = "sk-your-openai-api-key-here"
 
 def test_simple_api():
-    """Test the simple REST API."""
-    print("🔧 Testing Simple REST API")
+    """Test the simple REST API"""
+    print("\n📡 Testing Simple REST API")
     print("=" * 40)
     
-    # Simple API request
-    payload = {
-        "user_input": "Create a Python function to calculate factorial",
-        "api_key": API_KEY,
-        "context": {}
-    }
-    
     try:
-        response = requests.post(SIMPLE_API_URL, json=payload)
-        result = response.json()
+        response = requests.post(
+            "http://localhost:8000/api/ask",
+            json={
+                "user_input": "What is 2+2?",
+                "api_key": API_KEY,
+                "model": "gpt-4o-mini",  # Optional: specify model
+                "context": {}
+            },
+            timeout=30
+        )
         
         print(f"Status: {response.status_code}")
-        print(f"Response: {result['response']}")
-        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"Response: {result['response']}")
+        else:
+            print(f"Error: {response.text}")
+            
     except Exception as e:
         print(f"Error: {e}")
 
@@ -140,6 +145,7 @@ def test_mcp_assistant():
         "params": {
             "user_input": "Create a simple calculator function in Python",
             "api_key": API_KEY,
+            "model": "gpt-4o-mini",  # Optional: specify model
             "context": {}
         }
     }

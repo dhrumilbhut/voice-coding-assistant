@@ -20,6 +20,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 class MCPRequest(BaseModel):
     user_input: str
     api_key: str
+    model: str = "gpt-4o-mini"  # Default model, user can override
     context: Dict[str, Any] = {}
 
 
@@ -49,5 +50,5 @@ async def api_ask(request: Request, body: MCPRequest):
         return {"response": "Error: API key is required in the request.", "data": {}}
     if not (api_key.startswith("sk-") and len(api_key) >= 40):
         return {"response": "Error: Invalid API key format. Please provide a valid OpenAI API key.", "data": {}}
-    response, _ = run_assistant(body.user_input, context=body.context, api_key=api_key)
+    response, _ = run_assistant(body.user_input, context=body.context, api_key=api_key, model=body.model)
     return MCPResponse(response=response, data={})
