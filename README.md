@@ -58,19 +58,33 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
    python main.py
    ```
 
-5. **Run as MCP Server (API mode)**
+5. **Run as Simple API Server**
    ```bash
    uvicorn server:app --reload
    ```
 
+6. **Run as True MCP Server**
+   ```bash
+   python mcp_server.py
+   ```
+
+7. **Run Hybrid Mode (Both APIs)**
+   ```bash
+   python hybrid_server.py
+   ```
+
 
 ## 🎯 Usage Examples
-### Use the MCP API Endpoint
 
-Send a POST request to `/mcp/ask` with your OpenAI API key:
+### CLI Mode
+Run `python main.py` for interactive voice/text coding assistance.
+
+### Simple REST API
+
+Send a POST request to `/api/ask`:
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/mcp/ask" \
+curl -X POST "http://127.0.0.1:8000/api/ask" \
    -H "Content-Type: application/json" \
    -d '{
       "user_input": "Create a Python function to add two numbers",
@@ -79,7 +93,73 @@ curl -X POST "http://127.0.0.1:8000/mcp/ask" \
    }'
 ```
 
-**Note:** Each request must include a valid OpenAI API key in the `api_key` field. Requests are rate-limited (default: 10/minute per IP).
+### True MCP (Model Context Protocol) Server
+
+The project includes a **real MCP-compliant server** following the JSON-RPC 2.0 protocol:
+
+#### 1. Initialize the MCP connection:
+```bash
+curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+         "protocolVersion": "2024-11-05",
+         "capabilities": {"tools": {}},
+         "clientInfo": {"name": "my-client", "version": "1.0.0"}
+      }
+   }'
+```
+
+#### 2. List available tools:
+```bash
+curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/list"
+   }'
+```
+
+#### 3. Call a tool:
+```bash
+curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+         "name": "create_file",
+         "arguments": {
+            "file_path": "hello.py",
+            "content": "print(\"Hello MCP!\")",
+            "api_key": "sk-...your-key..."
+         }
+      }
+   }'
+```
+
+#### 4. Use the AI assistant:
+```bash
+curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "assistant/ask",
+      "params": {
+         "user_input": "Create a todo app",
+         "api_key": "sk-...your-key...",
+         "context": {}
+      }
+   }'
+```
+
+**Note:** Each request must include a valid OpenAI API key. The simple API is rate-limited (10/minute), while MCP allows 30/minute for more complex workflows.
 
 ### Create a Todo App
 ```
@@ -108,9 +188,12 @@ curl -X POST "http://127.0.0.1:8000/mcp/ask" \
 ```
 voice-coding-assistant/
 ├── main.py              # Main application entry point (CLI)
-├── assistant_core.py    # Core assistant logic (shared by CLI and API)
-├── server.py            # FastAPI MCP server (API mode)
+├── assistant_core.py    # Core assistant logic (shared by CLI and APIs)
+├── server.py            # Simple REST API server
+├── mcp_server.py        # True MCP-compliant JSON-RPC server
+├── hybrid_server.py     # Runs both APIs simultaneously  
 ├── tools.py             # Tool functions (file ops, analysis)
+├── test_apis.py         # Example usage for both APIs
 ├── requirements.txt     # Python dependencies
 ├── .env.example         # Environment variables template
 ├── README.md            # This file
@@ -147,6 +230,18 @@ The assistant automatically detects project types and creates organized folders:
 
 ## 🔧 Configuration
 
+### API Comparison
+
+| Feature | Simple REST API | True MCP Server |
+|---------|----------------|-----------------|
+| **Protocol** | HTTP REST | JSON-RPC 2.0 |
+| **Port** | 8000 | 8001 |
+| **Endpoint** | `/api/ask` | `/mcp/rpc` |
+| **Rate Limit** | 10/minute | 30/minute |
+| **Initialization** | None required | MCP handshake required |
+| **Tool Discovery** | Not available | `/tools/list` method |
+| **Compliance** | Simple & fast | MCP standard compliant |
+| **Use Case** | Quick integration | Standard MCP clients |
 
 ### Environment Variables
 

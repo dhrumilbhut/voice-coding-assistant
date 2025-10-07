@@ -30,13 +30,20 @@ class MCPResponse(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "MCP Server is running."}
+    return {
+        "message": "Voice Coding Assistant API Server",
+        "endpoints": {
+            "simple_api": "/api/ask",
+            "mcp_compliant": "/mcp/rpc (run mcp_server.py on port 8001)"
+        },
+        "documentation": "See README.md for usage examples"
+    }
 
 
 
-@app.post("/mcp/ask", response_model=MCPResponse)
+@app.post("/api/ask", response_model=MCPResponse)
 @limiter.limit("10/minute")  # Limit to 10 requests per minute per IP
-async def mcp_ask(request: Request, body: MCPRequest):
+async def api_ask(request: Request, body: MCPRequest):
     api_key = body.api_key.strip() if body.api_key else ""
     if not api_key:
         return {"response": "Error: API key is required in the request.", "data": {}}
