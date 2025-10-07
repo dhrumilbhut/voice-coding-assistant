@@ -14,7 +14,9 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 - **🎯 User-Selectable AI Models**: Choose from `gpt-4o-mini`, `gpt-4o`, `gpt-3.5-turbo` based on your cost/performance needs
 - **🔌 True MCP Compliance**: Full JSON-RPC 2.0 implementation with proper handshake, tool discovery, and error handling
 - **🏗️ Hybrid Architecture**: Run both Simple REST API (port 8000) and MCP Server (port 8001) simultaneously
-- **🛡️ Production Security**: Rate limiting, API key validation, command injection prevention
+- **� Custom Project Locations**: Specify where to create projects - "Create todo app in my_projects folder"
+- **🗂️ Organized Project Structure**: All AI projects organized in `ai_projects/` with smart categorization
+- **�🛡️ Production Security**: Rate limiting, API key validation, command injection prevention
 - **📊 Multi-Tenant Ready**: Isolated user sessions with individual API key management
 - **🧪 Comprehensive Testing**: Complete test suite for both API types with real-world examples
 
@@ -25,7 +27,8 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 - 🤖 **AI-Powered**: Integrates with OpenAI GPT-4o-mini for intelligent responses
 - 🎯 **Model Selection**: Users can choose from multiple OpenAI models (gpt-4o-mini, gpt-4o, gpt-3.5-turbo) based on their cost/performance needs
 - 🏗️ **Hybrid Architecture**: Both Simple REST API and True MCP Protocol support
-- 📁 **Smart Project Organization**: Automatically creates organized project folders
+- 📁 **Smart Project Organization**: Automatically creates organized project folders in `ai_projects/`
+- 🗂️ **Custom Locations**: Users can specify project locations - "Create in my_workspace folder"
 - 🛠️ **Multi-Tool Support**: File creation, code analysis, command execution
 - 🧠 **Chain-of-Thought Reasoning**: Multi-step planning for complex tasks
 - 🌐 **Web Development Ready**: Instant HTML, CSS, JavaScript project scaffolding
@@ -188,10 +191,16 @@ curl -X POST "http://127.0.0.1:8001/mcp/rpc" \
 ```
 🎤 "Create a todo app with HTML, CSS, and JavaScript"
 ```
-**Result**: Complete todo application in `todo_app/` folder with:
+**Result**: Complete todo application in `ai_projects/todo_app/` folder with:
 - `index.html` - Responsive HTML structure
 - `style.css` - Modern CSS styling  
 - `script.js` - Interactive JavaScript functionality
+
+### Create with Custom Location
+```
+🎤 "Create a calculator app in my_projects folder"
+```
+**Result**: Calculator application in `my_projects/calculator_app/` folder
 
 ### Analyze Code
 ```
@@ -220,10 +229,12 @@ voice-coding-assistant/
 ├── requirements.txt     # Python dependencies
 ├── .env.example         # Environment variables template
 ├── README.md            # This file
-└── generated_projects/  # Auto-created project folders
+└── ai_projects/         # Organized AI-generated projects
    ├── todo_app/
    ├── calculator_app/
-   └── web_app/
+   ├── web_app/
+   ├── game_app/
+   └── python_project/
 ```
 
 ## 🛠️ Available Tools
@@ -236,20 +247,47 @@ voice-coding-assistant/
 | `analyze_code` | Analyze code structure | Getting code metrics |
 | `run_command` | Execute system commands | Git operations, builds |
 
-## 🎨 Smart Project Detection
+## 🎨 Smart Project Detection & Custom Locations
 
-The assistant automatically detects project types and creates organized folders:
+The assistant automatically detects project types and creates organized folders in `ai_projects/`:
 
-| Project Type | Keywords | Folder Name |
-|--------------|----------|-------------|
-| 📝 Todo Apps | todo, task, checklist | `todo_app/` |
-| 🧮 Calculator | calc, calculator, math | `calculator_app/` |
-| 🌤️ Weather Apps | weather, forecast | `weather_app/` |
-| 💼 Portfolio | portfolio, resume, cv | `portfolio_app/` |
-| 🛒 E-commerce | shop, store, cart | `ecommerce_app/` |
-| 🎮 Games | game, puzzle, play | `game_app/` |
-| 🌐 Web Apps | General HTML/CSS/JS | `web_app/` |
-| 🐍 Python | Python files | `python_project/` |
+| Project Type | Keywords | Default Folder | Custom Location Example |
+|--------------|----------|----------------|------------------------|
+| 📝 Todo Apps | todo, task, checklist | `ai_projects/todo_app/` | `my_workspace/todo_app/` |
+| 🧮 Calculator | calc, calculator, math | `ai_projects/calculator_app/` | `desktop/tools/calculator_app/` |
+| 🌤️ Weather Apps | weather, forecast | `ai_projects/weather_app/` | `projects/weather_app/` |
+| 💼 Portfolio | portfolio, resume, cv | `ai_projects/portfolio_app/` | `websites/portfolio_app/` |
+| 🛒 E-commerce | shop, store, cart | `ai_projects/ecommerce_app/` | `business/ecommerce_app/` |
+| 🎮 Games | game, puzzle, play | `ai_projects/game_app/` | `my_games/game_app/` |
+| 🌐 Web Apps | General HTML/CSS/JS | `ai_projects/web_app/` | `webdev/web_app/` |
+| 🐍 Python | Python files | `ai_projects/python_project/` | `scripts/python_project/` |
+
+### 🗂️ **Custom Location Examples**
+
+Users can specify custom locations using natural language:
+
+```bash
+🎤 "Create a todo app in my_projects folder"
+📁 Result: my_projects/todo_app/
+
+🎤 "Put the calculator in desktop/tools"
+📁 Result: desktop/tools/calculator_app/
+
+🎤 "Save in location: custom_workspace"
+📁 Result: custom_workspace/[detected_project_type]/
+
+🎤 "Create in directory: user_apps"  
+📁 Result: user_apps/[detected_project_type]/
+```
+
+### 🎯 **Location Detection Patterns**
+The system recognizes various ways users specify custom locations:
+- "Create ... in [folder]"
+- "Put ... in [folder]"
+- "Save in location: [folder]"
+- "Create in directory: [folder]"
+- "Location: [folder]"
+- "Folder: [folder]"
 
 ## 🏗️ **Hybrid Architecture Overview**
 

@@ -104,11 +104,55 @@ def run_command(cmd: str):
         return f"❌ Error executing command '{cmd}': {str(e)}"
 
 
-def detect_project_name(file_path: str, content: str):
-    """Detect project name from file path or content."""
+def detect_project_name_and_location(file_path: str, content: str, user_query: str = ""):
+    """Detect project name and location from file path, content, and user query."""
     # Check if file_path already contains a folder
     if '/' in file_path or '\\' in file_path:
-        return None  # Don't modify if already in a folder
+        return None, None  # Don't modify if already in a folder
+    
+    # Check for custom location in user query
+    custom_location = extract_custom_location(user_query)
+    if custom_location:
+        # User specified a custom location
+        project_name = detect_project_type(file_path, content)
+        return project_name, custom_location
+    
+    # Default behavior - use ai_projects structure
+    project_name = detect_project_type(file_path, content)
+    return project_name, "ai_projects" if project_name else None
+
+
+def extract_custom_location(user_query: str):
+    """Extract custom location from user query if specified."""
+    if not user_query:
+        return None
+    
+    query_lower = user_query.lower()
+    
+    # Patterns for custom location specification
+    location_patterns = [
+        r'(?:create|put|save|place).*?(?:in|at|under)\s+["\']?([^"\'\n\r]+?)["\']?(?:\s|$)',
+        r'location[:\s]+["\']?([^"\'\n\r]+?)["\']?(?:\s|$)',
+        r'folder[:\s]+["\']?([^"\'\n\r]+?)["\']?(?:\s|$)',
+        r'directory[:\s]+["\']?([^"\'\n\r]+?)["\']?(?:\s|$)',
+        r'path[:\s]+["\']?([^"\'\n\r]+?)["\']?(?:\s|$)',
+    ]
+    
+    for pattern in location_patterns:
+        import re
+        match = re.search(pattern, query_lower)
+        if match:
+            location = match.group(1).strip()
+            # Clean up the location path
+            location = location.replace('\\', '/').strip('/')
+            if location and location not in ['current', 'here', 'this']:
+                return location
+    
+    return None
+
+
+def detect_project_type(file_path: str, content: str):
+    """Detect project type from file path or content."""
     
     # Common project indicators in filenames
     project_patterns = {
@@ -156,21 +200,27 @@ def detect_project_name(file_path: str, content: str):
     return None
 
 
-def create_file(file_path: str, content: str):
-    """Create a new file with the specified content in appropriate project folder."""
+def create_file(file_path: str, content: str, user_query: str = ""):
+    """Create a new file with the specified content in organized or custom location."""
     try:
-        # Detect if this should be in a project folder
-        project_name = detect_project_name(file_path, content)
+        # Detect project type and location
+        project_name, base_location = detect_project_name_and_location(file_path, content, user_query)
         
-        if project_name:
-            # Create project folder if it doesn't exist
-            project_path = Path(project_name)
+        if project_name and base_location:
+            # Create base folder and project subfolder
+            base_path = Path(base_location)
+            base_path.mkdir(parents=True, exist_ok=True)
+            
+            project_path = base_path / project_name
             project_path.mkdir(exist_ok=True)
             
-            # Update file path to be inside project folder
+            # Update file path to be inside organized structure
             file_path = project_path / file_path
             
-            print(f"📁 Creating project folder: {project_name}")
+            if base_location == "ai_projects":
+                print(f"📁 Creating in organized structure: ai_projects/{project_name}")
+            else:
+                print(f"📁 Creating in custom location: {base_location}/{project_name}")
         
         # Create the file
         with open(file_path, 'w', encoding='utf-8') as f:
@@ -182,13 +232,22 @@ def create_file(file_path: str, content: str):
 
 
 def read_file(file_path: str):
-    """Read the contents of a file."""
+    """Read the contents of a file, searching in ai_projects if needed."""
     try:
         # Check if file exists in current directory first
         if not os.path.exists(file_path):
-            # Look for the file in project folders
+            # Look for the file in ai_projects structure
+            ai_projects_path = Path('ai_projects')
+            if ai_projects_path.exists():
+                for project_folder in ai_projects_path.iterdir():
+                    if project_folder.is_dir():
+                        potential_path = project_folder / file_path
+                        if potential_path.exists():
+                            file_path = potential_path
+                            break
+            # Also check legacy project folders in root
             for item in os.listdir('.'):
-                if os.path.isdir(item):
+                if os.path.isdir(item) and item != 'ai_projects':
                     potential_path = Path(item) / file_path
                     if potential_path.exists():
                         file_path = potential_path
@@ -204,11 +263,20 @@ def read_file(file_path: str):
 def write_file(file_path: str, content: str):
     """Write content to an existing file (overwrites existing content)."""
     try:
-        # Check if file exists in current directory or project folders
+        # Check if file exists in current directory or ai_projects folders
         if not os.path.exists(file_path):
-            # Look for the file in project folders
+            # Look for the file in ai_projects structure
+            ai_projects_path = Path('ai_projects')
+            if ai_projects_path.exists():
+                for project_folder in ai_projects_path.iterdir():
+                    if project_folder.is_dir():
+                        potential_path = project_folder / file_path
+                        if potential_path.exists():
+                            file_path = potential_path
+                            break
+            # Also check legacy project folders in root
             for item in os.listdir('.'):
-                if os.path.isdir(item):
+                if os.path.isdir(item) and item != 'ai_projects':
                     potential_path = Path(item) / file_path
                     if potential_path.exists():
                         file_path = potential_path
