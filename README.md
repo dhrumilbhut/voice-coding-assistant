@@ -13,21 +13,14 @@ A sophisticated voice-controlled coding assistant that leverages OpenAI's GPT mo
 
 - 🎙️ **Voice-to-Code**: Convert speech directly into functional code
 - 🔊 **Text-to-Speech**: AI responses spoken aloud with OpenAI's streaming TTS
-- 🤖 **AI-Powered**: Integrates with OpenAI GPT-4o-mini for intelligent responses
-- 🎯 **Model Selection**: Users can choose from multiple OpenAI models (gpt-4o-mini, gpt-4o, gpt-3.5-turbo) based on their cost/performance needs
 - 🏗️ **Hybrid Architecture**: Both Simple REST API and True MCP Protocol support
+- 🔌 **True MCP Server**: Full JSON-RPC 2.0 compliant Model Context Protocol implementation
+- 🎯 **Model Selection**: Users can choose from multiple OpenAI models (gpt-4o-mini, gpt-4o, gpt-3.5-turbo) based on their cost/performance needs
 - 📁 **Smart Project Organization**: Automatically creates organized project folders in `ai_projects/`
 - 🗂️ **Custom Locations**: Users can specify project locations - "Create in my_workspace folder"
+- 🛡️ **Rate Limiting**: Prevents abuse and controls API costs by limiting requests per user/IP
 - 🛠️ **Multi-Tool Support**: File creation, code analysis, command execution
 - 🧠 **Chain-of-Thought Reasoning**: Multi-step planning for complex tasks
-- 🌐 **Web Development Ready**: Instant HTML, CSS, JavaScript project scaffolding
-- 🐍 **Python Support**: Create and analyze Python projects
-- 📝 **Structured Outputs**: Reliable JSON-based AI responses
-- 🛡️ **Rate Limiting**: Prevents abuse and controls API costs by limiting requests per user/IP
-- 🔑 **User-Provided OpenAI API Key**: Each user must supply their own OpenAI API key for every request, ensuring privacy and cost control
-- 🔌 **True MCP Server**: Full JSON-RPC 2.0 compliant Model Context Protocol implementation
-- 📊 **Multi-Tenant Ready**: Supports multiple users with isolated API usage and billing
-- 🧩 **Easy Integration**: Ready for use with external tools, scripts, or future VS Code extension
 
 ## 🚀 Quick Start
 
